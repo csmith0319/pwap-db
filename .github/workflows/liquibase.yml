@@ -54,7 +54,7 @@ jobs:
           POSTGRES_PORT: ${{ secrets.DbPort }}
         run: |
           liquibase \
-            --changelog-file=db/changelog/db.changelog-master.xml \
+            --changelog-file=db/changelog/db.changelog-root.json \
             --url="jdbc:postgresql://$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB" \
             --username=$POSTGRES_USER \
             --password=$POSTGRES_PASSWORD \
@@ -69,7 +69,7 @@ jobs:
           POSTGRES_PORT: ${{ secrets.DbPort }}
         run: |
           liquibase \
-            --changelog-file=db/changelog/db.changelog-master.xml \
+            --changelog-file=db/changelog/db.changelog-root.json \
             --url="jdbc:postgresql://$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB" \
             --username=$POSTGRES_USER \
             --password=$POSTGRES_PASSWORD \
