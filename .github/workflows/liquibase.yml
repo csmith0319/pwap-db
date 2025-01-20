@@ -1,0 +1,82 @@
+name: Liquibase Database Updates
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'db/changelog/**'  # Only trigger when changes are made to changelog files
+
+jobs:
+  liquibase-update:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: ${{ secrets.DbName }}
+          POSTGRES_USER: ${{ secrets.DbUser }}
+          POSTGRES_PASSWORD: ${{ secrets.DbPass }}
+        ports:
+          - ${{secrets.DbPort}}:${{secrets.DbPort}}
+        options:
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Liquibase
+        run: |
+          wget -O - https://repo.liquibase.com/liquibase.asc | gpg --dearmor > liquibase-keyring.gpg
+          cat liquibase-keyring.gpg | sudo tee /usr/share/keyrings/liquibase-keyring.gpg > /dev/null
+          echo 'deb [signed-by=/usr/share/keyrings/liquibase-keyring.gpg] https://repo.liquibase.com stable main' | sudo tee /etc/apt/sources.list.d/liquibase.list
+          sudo apt-get update
+          sudo apt-get install -y liquibase
+          sudo apt-get install -y postgresql-client
+
+      - name: Run Liquibase Update
+        env:
+          POSTGRES_DB: ${{ secrets.DbName }}
+          POSTGRES_USER: ${{ secrets.DbUser }}
+          POSTGRES_PASSWORD: ${{ secrets.DbPass }}
+          POSTGRES_HOST: ${{ secrets.DbHost }}
+          POSTGRES_PORT: ${{ secrets.DbPort }}
+        run: |
+          liquibase \
+            --changelog-file=db/changelog/db.changelog-master.xml \
+            --url="jdbc:postgresql://$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB" \
+            --username=$POSTGRES_USER \
+            --password=$POSTGRES_PASSWORD \
+            update
+
+      - name: Generate Update SQL 
+        env:
+          POSTGRES_DB: ${{ secrets.DbName }}
+          POSTGRES_USER: ${{ secrets.DbUser }}
+          POSTGRES_PASSWORD: ${{ secrets.DbPass }}
+          POSTGRES_HOST: ${{ secrets.DbHost }}
+          POSTGRES_PORT: ${{ secrets.DbPort }}
+        run: |
+          liquibase \
+            --changelog-file=db/changelog/db.changelog-master.xml \
+            --url="jdbc:postgresql://$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB" \
+            --username=$POSTGRES_USER \
+            --password=$POSTGRES_PASSWORD \
+            updateSQL > update_sql.txt
+
+      - name: Upload SQL Preview
+        uses: actions/upload-artifact@v3
+        with:
+          name: database-changes
+          path: update_sql.txt
