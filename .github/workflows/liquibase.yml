@@ -15,11 +15,11 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_DB: ${{ secrets.DbName }}
-          POSTGRES_USER: ${{ secrets.DbUser }}
-          POSTGRES_PASSWORD: ${{ secrets.DbPass }}
+          POSTGRES_DB: ${{ secrets.DBNAME }}
+          POSTGRES_USER: ${{ secrets.DBUSER }}
+          POSTGRES_PASSWORD: ${{ secrets.DBPASS }}
         ports:
-          - ${{secrets.DbPort}}:${{secrets.DbPort}}
+          - ${{secrets.DBPORT}}:${{secrets.DBPORT}}
         options:
           --health-cmd pg_isready
           --health-interval 10s
@@ -47,11 +47,11 @@ jobs:
 
       - name: Run Liquibase Update
         env:
-          POSTGRES_DB: ${{ secrets.DbName }}
-          POSTGRES_USER: ${{ secrets.DbUser }}
-          POSTGRES_PASSWORD: ${{ secrets.DbPass }}
-          POSTGRES_HOST: ${{ secrets.DbHost }}
-          POSTGRES_PORT: ${{ secrets.DbPort }}
+          POSTGRES_DB: ${{ secrets.DBNAME }}
+          POSTGRES_USER: ${{ secrets.DBUSER }}
+          POSTGRES_PASSWORD: ${{ secrets.DBPASS }}
+          POSTGRES_HOST: ${{ secrets.DBHOST }}
+          POSTGRES_PORT: ${{ secrets.DBPORT }}
         run: |
           liquibase \
             --changelog-file=db/changelog/db.changelog-root.json \
@@ -62,11 +62,11 @@ jobs:
 
       - name: Generate Update SQL 
         env:
-          POSTGRES_DB: ${{ secrets.DbName }}
-          POSTGRES_USER: ${{ secrets.DbUser }}
-          POSTGRES_PASSWORD: ${{ secrets.DbPass }}
-          POSTGRES_HOST: ${{ secrets.DbHost }}
-          POSTGRES_PORT: ${{ secrets.DbPort }}
+          POSTGRES_DB: ${{ secrets.DBNAME }}
+          POSTGRES_USER: ${{ secrets.DBUSER }}
+          POSTGRES_PASSWORD: ${{ secrets.DBPASS }}
+          POSTGRES_HOST: ${{ secrets.DBHOST }}
+          POSTGRES_PORT: ${{ secrets.DBPORT }}
         run: |
           liquibase \
             --changelog-file=db/changelog/db.changelog-root.json \
