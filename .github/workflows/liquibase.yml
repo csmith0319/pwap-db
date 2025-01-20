@@ -5,23 +5,27 @@ on:
     branches:
       - main
     paths:
-      - 'db/changelog/**'  # Only trigger when changes are made to changelog files
+      - "db/changelog/**" # Only trigger when changes are made to changelog files
 
 jobs:
   liquibase-update:
     runs-on: ubuntu-latest
-    
+    env:
+      DB_NAME: ${{secrets.DBNAME}}
+      DB_USER: ${{secrets.DBUSER}}
+      DB_PASS: ${{secrets.DBPASS}}
+      DB_PORT: ${{secrets.DB_PORT}}
+      DB_HOST: ${{secrets.DB_HOST}}
     services:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_DB: ${{ secrets.DBNAME }}
-          POSTGRES_USER: ${{ secrets.DBUSER }}
-          POSTGRES_PASSWORD: ${{ secrets.DBPASS }}
+          POSTGRES_DB: DB_NAME
+          POSTGRES_USER: DB_USER
+          POSTGRES_PASSWORD:
         ports:
-          - ${{secrets.DBPORT}}:${{secrets.DBPORT}}
-        options:
-          --health-cmd pg_isready
+          - 5365:5365
+        options: --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -33,8 +37,8 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
       - name: Install Liquibase
         run: |
@@ -46,12 +50,6 @@ jobs:
           sudo apt-get install -y postgresql-client
 
       - name: Run Liquibase Update
-        env:
-          POSTGRES_DB: ${{ secrets.DBNAME }}
-          POSTGRES_USER: ${{ secrets.DBUSER }}
-          POSTGRES_PASSWORD: ${{ secrets.DBPASS }}
-          POSTGRES_HOST: ${{ secrets.DBHOST }}
-          POSTGRES_PORT: ${{ secrets.DBPORT }}
         run: |
           liquibase \
             --changelog-file=db/changelog/db.changelog-root.json \
@@ -60,13 +58,7 @@ jobs:
             --password=$POSTGRES_PASSWORD \
             update
 
-      - name: Generate Update SQL 
-        env:
-          POSTGRES_DB: ${{ secrets.DBNAME }}
-          POSTGRES_USER: ${{ secrets.DBUSER }}
-          POSTGRES_PASSWORD: ${{ secrets.DBPASS }}
-          POSTGRES_HOST: ${{ secrets.DBHOST }}
-          POSTGRES_PORT: ${{ secrets.DBPORT }}
+      - name: Generate Update SQL
         run: |
           liquibase \
             --changelog-file=db/changelog/db.changelog-root.json \
