@@ -1,7 +1,8 @@
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_number:
+        description: 'Version #' 
 
 jobs:
   create_release:
@@ -16,7 +17,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ github.event.inputs.version_number }}
+          release_name: Release ${{ github.event.inputs.version_number }}
           draft: false
           prerelease: false
