@@ -1,5 +1,4 @@
 name: 'Deployment'
-description: 'Deploy to dev/stage'
 
 on:
   push:
@@ -28,7 +27,7 @@ jobs:
         id: deploy-dev
         run: |
           echo "Deploying migrations to development environment..."
-          railway login
+          railway login --browserless
           railway link \ 
             --project ${{ secrets.RAILWAY_PROJECT_ID }} 
             --service ${{ secrets.RAILWAY_SERVICE_ID }}
