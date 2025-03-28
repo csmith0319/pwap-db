@@ -10,19 +10,42 @@ on:
     
 jobs:
   deployment:
-    name: Deploying to dev and stage
     runs-on: ubuntu-latest
-    container:
-      image: flyway/flyway
-      volumes:
-        - ${{ github.workspace }}:/flyway
-      env:
-        NODE_ENV: development
-          
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Check for dockerenv file
-        run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
-      - name: Debugging
-        run: (ls -a ./)
+        
+      - name: Install Flyway CLI
+        run: |
+          wget -qO- https://download.red-gate.com/maven/release/com/redgate/flyway/flyway-commandline/11.5.0/flyway-commandline-11.5.0-linux-x64.tar.gz | 
+          tar -xvz && sudo ln -s `pwd`/flyway-11.5.0/flyway /usr/local/bin
+          flyway --version
+          
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+        
+      - name: Login to Railway
+        run: railway login
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          
+      - name: Deploy to Development
+        id: deploy-dev
+        run: |
+          echo "Deploying migrations to development environment..."
+          railway link ${{ secrets.RAILWAY_PROJECT_ID }} --environment development
+          DB_URL=$(railway variables get DATABASE_URL)
+          flyway -url="$DB_URL" -location=filesystem:./migrations migrate
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          
+      - name: Deploy to Staging
+        id: deploy-staging
+        if: steps.deploy-dev.outcome == 'success'
+        run: |
+          echo "Deploying migrations to staging environment..."
+          railway link ${{ secrets.RAILWAY_PROJECT_ID }} --environment staging
+          DB_URL=$(railway variables get DATABASE_URL)
+          flyway -url="$DB_URL" -locations=filesystem:./migrations migrate
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
