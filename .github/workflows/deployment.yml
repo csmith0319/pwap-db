@@ -28,19 +28,26 @@ jobs:
         id: deploy-dev
         run: |
           echo "Deploying migrations to development environment..."
+          railway login
           railway link ${{ secrets.RAILWAY_PROJECT_ID }} --environment development
           DB_URL=$(railway variables get DATABASE_URL)
           flyway -url="$DB_URL" -location=filesystem:./migrations migrate
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+          RAILWAY_ENVIRONMENT: development
           
-      - name: Deploy to Staging
-        id: deploy-staging
-        if: steps.deploy-dev.outcome == 'success'
-        run: |
-          echo "Deploying migrations to staging environment..."
-          railway link ${{ secrets.RAILWAY_PROJECT_ID }} --environment staging
-          DB_URL=$(railway variables get DATABASE_URL)
-          flyway -url="$DB_URL" -locations=filesystem:./migrations migrate
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+#      - name: Deploy to Staging
+#        id: deploy-staging
+#        if: steps.deploy-dev.outcome == 'success'
+#        run: |
+#          echo "Deploying migrations to staging environment..."
+#          railway link ${{ secrets.RAILWAY_PROJECT_ID }} --environment staging
+#          DB_URL=$(railway variables get DATABASE_URL)
+#          flyway -url="$DB_URL" -locations=filesystem:./migrations migrate
+#        env:
+#          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+#          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+#          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+#          RAILWAY_ENVIRONMENT: staging
