@@ -1,0 +1,30 @@
+name: Deployment
+
+on:
+  push:
+    branches:
+      - main
+      
+  workflow_dispatch:
+    
+env:
+  ACTIONS_RUNNER_DEBUG: true
+        
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: development
+    env:
+      flywayToken: ${{ secrets.FLYWAY_TOKEN }}
+      flywayEnvironment: ${{ secrets.FLYWAY_ENVIRONMENT }}
+      flywayPublishResult: ${{ secrets.FLYWAY_PUBLISH_RESULT }}
+      flywayCheckDrift: ${{ secrets.FLYWAY_CHECK_DRIFT_ON_MIGRATE }}
+      flywayEmail: ${{ secrets.FLYWAY_EMAIL }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Migrate Development DB
+        runs: |
+          flyway migrate -publishResult=${{ env.flywayPublishResult }} email=${{ env.flywayEmail }} -token=${{ env.flywayToken }}
