@@ -26,5 +26,9 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Migrate Development DB
-        run: |
-          flyway migrate -publishResult=${{ env.flywayPublishResult }} email=${{ env.flywayEmail }} -token=${{ env.flywayToken }}
+        uses: red-gate/FlywayGitHubAction@main
+        with:
+          url: ${{ secrets.DATABASE_URL }}
+          user: ${{ secrets.DATABASE_USER }}
+          password: ${{ secrets.DATABASE_PASSWORD }}
+          locations: filesystem:./sql
