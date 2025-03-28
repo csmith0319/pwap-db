@@ -15,7 +15,7 @@ jobs:
     container:
       image: flyway/flyway
       volumes:
-        - ${{ github.workspace }}:/pwap-db
+        - ${{ github.workspace }}:/flyway
       env:
         NODE_ENV: development
           
@@ -24,3 +24,5 @@ jobs:
         uses: actions/checkout@v4
       - name: Check for dockerenv file
         run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
+      - name: Debugging
+        run: (ls -a ./)
