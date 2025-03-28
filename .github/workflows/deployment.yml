@@ -29,10 +29,14 @@ jobs:
         run: |
           echo "Deploying migrations to development environment..."
           railway login
-          railway link ${{ secrets.RAILWAY_PROJECT_ID }} --environment development
-          DB_URL=$(railway variables get DATABASE_URL)
+          railway link \ 
+            --project ${{ secrets.RAILWAY_PROJECT_ID }} 
+            --service ${{ secrets.RAILWAY_SERVICE_ID }}
+            --environment development
+          DB_URL=${{ secrets.DATABASE_URL }}
           flyway -url="$DB_URL" -location=filesystem:./migrations migrate
         env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
           RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
