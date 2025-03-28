@@ -1,0 +1,26 @@
+name: 'Deployment'
+description: 'Deploy to dev/stage'
+
+on:
+  push:
+    branches:
+      - main
+        
+  workflow_dispatch:
+    
+jobs:
+  deployment:
+    name: Deploying to dev and stage
+    runs-on: ubuntu-latest
+    container:
+      image: flyway/flyway
+      volumes:
+        - ${{ github.workspace }}:/pwap-db
+      env:
+        NODE_ENV: development
+          
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check for dockerenv file
+        run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
