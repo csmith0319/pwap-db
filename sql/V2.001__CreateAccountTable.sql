@@ -13,10 +13,10 @@ CREATE TABLE account (
     email varchar(255) NOT NULL UNIQUE,
     phone_number varchar,
     preferences_id uuid REFERENCES AccountPreferences(id),
-    last_seen timestampz,
-    created_at timestampz DEFAULT clock_timestamp(),
+    last_seen timestamp with time zone,
+    created_at timestamp with time zone DEFAULT clock_timestamp(),
     created_by uuid DEFAULT uuid_nil(),
-    updated_at timestampz DEFAULT clock_timestamp(),
+    updated_at timestamp with time zone DEFAULT clock_timestamp(),
     updated_by uuid DEFAULT uuid_nil()
 );
 
