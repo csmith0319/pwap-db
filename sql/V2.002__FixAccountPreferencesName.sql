@@ -1,6 +1,6 @@
 -- V2.002__FixAccountPreferencesName.sql
 -- Rename AccountPreferences table to account_preferences
-ALTER TABLE "AccountPreferences" RENAME TO account_preferences;
+ALTER TABLE accountpreferences RENAME TO account_preferences;
 
 -- Update the foreign key in account table to reference the new table name
 -- First, drop the existing foreign key constraint
