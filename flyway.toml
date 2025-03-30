@@ -2,25 +2,29 @@ databaseType = "PostgreSql"
 id = "9c7ee88d-98c0-429c-9540-d265e026de3e"
 name = "pwap-db"
 
-[flyway]
-locations = [ "filesystem:migrations" ]
-mixed = true
-outOfOrder = true
-schemaModelLocation = "schema-model"
-validateMigrationNaming = true
-
-[flyway.check]
-majorTolerance = 0
-
 [flywayDesktop]
 developmentEnvironment = "development"
 shadowEnvironment = "shadow"
+schemaModel = "./schema-model"
+
+[flywayDesktop.generate]
+undoScripts = true
 
 [redgateCompare]
 filterFile = "filter.rgf"
 
-[redgateCompare.postgresql.options.behavior]
-detectRenames = "identical-only"
+[flyway]
+locations = [ "filesystem:migrations" ]
+baselineVersion = "V1__example.sql"
+baselineOnMigrate = true
 
-[redgateCompare.postgresql.options.ignores]
-ignoreNewlinesInTextObjects = "off"
+[environments.development]
+url = "jdbc:postgresql://localhost:5432/postgres"
+schemas = [ "public" ]
+displayName = "Development database"
+
+[environments.shadow]
+url = "jdbc:postgresql://localhost:5432/postgres"
+schemas = [ "public" ]
+displayName = "Shadow database"
+provisioner = "clean"

@@ -1,10 +1,9 @@
-FROM redgate/flyway
+FROM flyway/flyway
 
 ARG RAILWAY_ENVIRONMENT
 ARG RAILWAY_SERVICE_NAME
-ARG DATABASE_URL
 
-COPY sql /flyway/sql
+COPY migrations /flyway/migrations
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
